@@ -104,12 +104,34 @@ extension Compress on IVideoCompress {
     return MediaInfo.fromJson(jsonMap);
   }
 
+  @Deprecated("Use [compress] instead")
+  Future<MediaInfo?> compressVideo(
+    String path, {
+    VideoQuality quality = VideoQuality.DefaultQuality,
+    bool deleteOrigin = false,
+    int? startTime,
+    int? duration,
+    bool? includeAudio,
+    int frameRate = 30,
+  }) async {
+    return compress(
+      path,
+      quality: quality,
+      deleteOrigin: deleteOrigin,
+      start: startTime != null ? Duration(seconds: startTime!) : null,
+      end: duration != null
+        ? Duration(seconds: (startTime ?? 0) + duration!)
+        : null,
+      frameRate: frameRate,
+    );
+  }
+
   /// compress video from [path]
   /// compress video from [path] return [Future<MediaInfo>]
   ///
   /// you can choose its quality by [quality],
   /// determine whether to delete his source file by [deleteOrigin]
-  /// optional parameters [startTime] [duration] [includeAudio] [frameRate]
+  /// optional parameters [start] [end] [includeAudio] [frameRate]
   ///
   /// ## example
   /// ```dart
@@ -119,12 +141,12 @@ extension Compress on IVideoCompress {
   /// );
   /// debugPrint(info.toJson());
   /// ```
-  Future<MediaInfo?> compressVideo(
+  Future<MediaInfo?> compress(
     String path, {
     VideoQuality quality = VideoQuality.DefaultQuality,
     bool deleteOrigin = false,
-    int? startTime,
-    int? duration,
+    Duration? start,
+    Duration? end,
     bool? includeAudio,
     int frameRate = 30,
   }) async {
@@ -145,8 +167,8 @@ extension Compress on IVideoCompress {
       'path': path,
       'quality': quality.index,
       'deleteOrigin': deleteOrigin,
-      'startTime': startTime,
-      'duration': duration,
+      'start': start?.inMicroseconds,
+      'end': end?.inMicroseconds,
       'includeAudio': includeAudio,
       'frameRate': frameRate,
     });
